@@ -7,10 +7,14 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @Controller('api/person')
 export class PersonController {
@@ -23,6 +27,20 @@ export class PersonController {
   @Post()
   create(@Body() createPersonDto: CreatePersonDto) {
     return this.personService.create(createPersonDto);
+  }
+
+  @Post('file')
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      dest: 'uploads/',
+    }),
+  )
+  upload(
+    @Body() createPersonDto: CreatePersonDto,
+    @UploadedFiles() files: Array<File>,
+  ) {
+    this.personService.create(createPersonDto);
+    console.log(files);
   }
 
   @Get()
